@@ -2,6 +2,7 @@
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
     <Cola/>
+    <sui-input type="file" placeholder="Search..." />
   </div>
 </template>
 
