@@ -1,6 +1,6 @@
 const _ = require('lodash')
 
-module.exports = function stepToD3(step_json){
+export default function stepToD3(step_json){
     const nodes = []
     const links = []
 
@@ -18,12 +18,12 @@ module.exports = function stepToD3(step_json){
         const source = _.findIndex(nodes, n => n.name === name)
 
 
-        const next =
-        links.push({
-            target: _.findIndex(nodes, n => n.name === node.Next),
-            source: _.findIndex(nodes, n => n.name === name),
-            value: 1
-        })
+        if ('Next' in node)
+            links.push({
+                target: _.findIndex(nodes, n => n.name === node.Next),
+                source: _.findIndex(nodes, n => n.name === name),
+                value: 1
+            })
     }
 
     return {
