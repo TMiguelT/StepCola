@@ -1,6 +1,6 @@
-const assert = require("assert")
-const fs = require('fs').promises;
-const stepToD3 = require('../src/StepToD3')
+import {promises as fs} from 'fs'
+import stepToD3 from '../src/StepToD3'
+import assert from "assert"
 
 describe("StepToD3", function () {
     it("should convert the step function sample to D3 nodes", async function () {

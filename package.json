@@ -5,9 +5,11 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test": "mjs-mocha"
   },
   "dependencies": {
+    "babel-preset-env": "^1.7.0",
     "d3": "^5.7.0",
     "lodash": "^4.17.11",
     "semantic-ui-vue": "^0.7.0",
@@ -15,13 +17,23 @@
     "webcola": "^3.3.8"
   },
   "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "@babel/register": "^7.0.0",
     "@vue/cli-plugin-babel": "^3.3.0",
     "@vue/cli-plugin-eslint": "^3.3.0",
     "@vue/cli-service": "^3.3.0",
     "babel-eslint": "^10.0.1",
+    "babel-polyfill": "^6.26.0",
+    "babel-register": "^6.26.0",
+    "chai": "^4.2.0",
     "eslint": "^5.8.0",
     "eslint-plugin-vue": "^5.0.0",
+    "mjs-mocha": "^2.1.2",
     "mocha": "^5.2.0",
+    "nodemon": "^1.18.9",
     "vue-template-compiler": "^2.5.21"
   },
   "eslintConfig": {
@@ -37,6 +49,9 @@
     "parserOptions": {
       "parser": "babel-eslint"
     }
+  },
+  "babel": {
+    "presets": ["env"]
   },
   "postcss": {
     "plugins": {

@@ -7,11 +7,11 @@
 </template>
 
 <script>
-    import * as d3 from 'd3'
-    import * as cola from 'webcola'
+    import * as d3 from "d3"
+    import * as cola from "webcola"
 
     export default {
-        name: 'Cola',
+        name: "Cola",
         props: {
             nodes: Array,
             links: Array,
@@ -22,9 +22,10 @@
         },
         watch: {
             nodes() {
-                console.log('Updated!')
+                console.log("Updated!")
                 const width = 960, height = 500
-                var nodeRadius = 10
+                var nodeRadius = 20
+                var margin = 10, pad = 12
 
                 // graph.nodes.forEach(function (v) { v.height = v.width = 2 * nodeRadius; });
                 var color = d3.scaleOrdinal(d3.schemeCategory20)
@@ -36,65 +37,109 @@
                 d3cola
                     .nodes(this.nodes)
                     .links(this.links)
-                    .flowLayout('y', 30)
-                    .symmetricDiffLinkLengths(6)
+                    .flowLayout("y", 130)
+                    .symmetricDiffLinkLengths(4 * nodeRadius)
+                    .convergenceThreshold(1e-3)
+                    .size([width, height])
                     .start(10, 20, 20)
 
                 const svg = d3.select(this.$refs.svg)
-                    .attr('width', width)
-                    .attr('height', height)
+                    .attr("width", width)
+                    .attr("height", height)
 
                 // define arrow markers for graph links
-                svg.append('svg:defs').append('svg:marker')
-                    .attr('id', 'end-arrow')
-                    .attr('viewBox', '0 -5 10 10')
-                    .attr('refX', 6)
-                    .attr('markerWidth', 3)
-                    .attr('markerHeight', 3)
-                    .attr('orient', 'auto')
-                    .append('svg:path')
-                    .attr('d', 'M0,-5L10,0L0,5')
-                    .attr('fill', '#000')
+                svg.append("svg:defs").append("svg:marker")
+                    .attr("id", "end-arrow")
+                    .attr("viewBox", "0 -5 10 10")
+                    .attr("refX", 6)
+                    .attr("markerWidth", 3)
+                    .attr("markerHeight", 3)
+                    .attr("orient", "auto")
+                    .append("svg:path")
+                    .attr("d", "M0,-5L10,0L0,5")
+                    .attr("fill", "#000")
 
-                const path = svg.selectAll('.link')
+                const path = svg.selectAll(".link")
                     .data(this.links)
-                    .enter().append('svg:path')
-                    .attr('class', 'link')
+                    .enter()
+                    .append("svg:path")
+                    .attr("class", "link")
 
-                const node = svg.selectAll('.node')
+                const node = svg.selectAll(".node")
                     .data(this.nodes)
                     .enter()
-                    .append('circle')
-                    .attr('class', 'node')
-                    .attr('r', nodeRadius)
-                    .style('fill', function (d) {
+                    .append("rect")
+                    .attr("class", "node")
+                    .style("stroke", function (d) {
                         return color(d.group)
                     })
                     .call(d3cola.drag)
 
-
-                d3cola.on('tick', function () {
-                    // draw directed edges with proper padding from node centers
-                    path.attr('d', function (d) {
-                        var deltaX = d.target.x - d.source.x,
-                            deltaY = d.target.y - d.source.y,
-                            dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
-                            normX = deltaX / dist,
-                            normY = deltaY / dist,
-                            sourcePadding = nodeRadius,
-                            targetPadding = nodeRadius + 2,
-                            sourceX = d.source.x + (sourcePadding * normX),
-                            sourceY = d.source.y + (sourcePadding * normY),
-                            targetX = d.target.x - (targetPadding * normX),
-                            targetY = d.target.y - (targetPadding * normY)
-                        return 'M' + sourceX + ',' + sourceY + 'L' + targetX + ',' + targetY
+                var label = svg.selectAll(".label")
+                    .data(this.nodes)
+                    .enter()
+                    .append("text")
+                    .attr("class", "label")
+                    .text(function (d) {
+                        return d.name
                     })
-                    node.attr('cx', function (d) {
+                    .call(d3cola.drag)
+                    .each(function (d) {
+                        var b = this.getBBox()
+                        var extra = 2 * margin + 2 * pad
+                        d.width = b.width + extra
+                        d.height = b.height + extra
+                    })
+
+                var lineFunction = d3.line()
+                    .x(function (d) {
                         return d.x
                     })
-                        .attr('cy', function (d) {
-                            return d.y
-                        })
+                    .y(function (d) {
+                        return d.y
+                    })
+
+                d3cola.on("tick", function () {
+                    // draw directed edges with proper padding from node centers
+
+                    // path.attr("d", function (d) {
+                    //     var deltaX = d.target.x - d.source.x,
+                    //         deltaY = d.target.y - d.source.y,
+                    //         dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY),
+                    //         normX = deltaX / dist,
+                    //         normY = deltaY / dist,
+                    //         sourcePadding = nodeRadius,
+                    //         targetPadding = nodeRadius + 2,
+                    //         sourceX = d.source.x + (sourcePadding * normX),
+                    //         sourceY = d.source.y + (sourcePadding * normY),
+                    //         targetX = d.target.x - (targetPadding * normX),
+                    //         targetY = d.target.y - (targetPadding * normY)
+                    //     return "M" + sourceX + "," + sourceY + "L" + targetX + "," + targetY
+                    // })
+
+                    node.each(function (d) {
+                        d.innerBounds = d.bounds.inflate(-margin)
+                    }).attr("x", function (d) {
+                        return d.innerBounds.x
+                    }).attr("y", function (d) {
+                        return d.innerBounds.y
+                    }).attr("width", function (d) {
+                        return d.innerBounds.width()
+                    }).attr("height", function (d) {
+                        return d.innerBounds.height()
+                    })
+
+                    path.attr("d", function (d) {
+                        var route = cola.makeEdgeBetween(d.source.innerBounds, d.target.innerBounds, 5)
+                        return lineFunction([route.sourceIntersection, route.arrowStart])
+                    })
+
+
+                    label.attr("x", function (d) {
+                        return d.x
+                    }).attr("y", function (d) {
+                        return d.y + (margin + pad) / 2
+                    })
                 })
             }
         }
@@ -122,8 +167,11 @@
     }
 
     .node {
-        stroke: #fff;
+        stroke: #000;
         stroke-width: 1.5px;
+        fill: rgba(0, 0, 0, 0);
+        rx: 5px;
+        ry: 5px;
     }
 
     .link {
@@ -132,5 +180,13 @@
         stroke-width: 1.5px;
         opacity: 0.4;
         marker-end: url(#end-arrow);
+    }
+
+    .label {
+        fill: black;
+        font-family: Verdana;
+        font-size: 25px;
+        text-anchor: middle;
+        cursor: move;
     }
 </style>

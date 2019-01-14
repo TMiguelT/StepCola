@@ -1,6 +1,5 @@
 <template>
     <div id="app">
-        <img alt="Vue logo" src="./assets/logo.png">
         <Cola v-bind:nodes="graph.nodes" v-bind:links="graph.links"/>
         <sui-input v-on:change="fileUpdate" type="file" placeholder="Search..."/>
     </div>

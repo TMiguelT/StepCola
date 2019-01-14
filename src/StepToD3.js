@@ -1,4 +1,4 @@
-const _ = require('lodash')
+import _ from 'lodash'
 
 export default function stepToD3(step_json){
     const nodes = []
@@ -18,6 +18,7 @@ export default function stepToD3(step_json){
         const source = _.findIndex(nodes, n => n.name === name)
 
 
+        const stuff = _.flatMapDeep(node)
         if ('Next' in node)
             links.push({
                 target: _.findIndex(nodes, n => n.name === node.Next),
