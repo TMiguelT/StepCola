@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <Cola v-bind:nodes="graph.nodes" v-bind:links="graph.links"/>
-        <sui-input v-on:change="fileUpdate" type="file" placeholder="Search..."/>
+        <sui-input v-on:change="fileUpdate" accept=".json" type="file" placeholder="Search..."/>
     </div>
 </template>
 
@@ -51,6 +51,10 @@
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
         color: #2c3e50;
-        margin-top: 60px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
     }
 </style>

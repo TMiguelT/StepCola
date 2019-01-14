@@ -50,9 +50,6 @@
       "parser": "babel-eslint"
     }
   },
-  "babel": {
-    "presets": ["env"]
-  },
   "postcss": {
     "plugins": {
       "autoprefixer": {}

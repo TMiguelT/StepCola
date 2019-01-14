@@ -1,5 +1,17 @@
 import _ from 'lodash'
 
+function findNext(obj, list = []){
+    
+    for (let [key, value] of _.entries(obj)){
+        if(key === 'Next')
+            list.push(value)
+        else if (value instanceof Object)
+            findNext(value, list)
+    }
+    
+    return list
+}
+
 export default function stepToD3(step_json){
     const nodes = []
     const links = []
@@ -15,13 +27,10 @@ export default function stepToD3(step_json){
     // In the second pass, we create the links
     for (let name of Object.keys(step_json.States)) {
         const node = step_json.States[name]
-        const source = _.findIndex(nodes, n => n.name === name)
 
-
-        const stuff = _.flatMapDeep(node)
-        if ('Next' in node)
+        for (let next of findNext(node))
             links.push({
-                target: _.findIndex(nodes, n => n.name === node.Next),
+                target: _.findIndex(nodes, n => n.name === next),
                 source: _.findIndex(nodes, n => n.name === name),
                 value: 1
             })

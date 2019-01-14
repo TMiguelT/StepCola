@@ -1,20 +1,23 @@
 module.exports = {
-    "env": {
-        "production": {
-            "presets": [
+    'env': {
+        'production': {
+            'presets': [
                 [
-                    "@vue/app", {
-                    "modules": false,
-                    "targets": ["ie >= 9"]
-                }
+                    '@vue/app',
+                    {
+                        // "modules": false,
+                        'targets': ['ie >= 9']
+                    },
+                    '@babel/env'
                 ]
             ],
-            "comments": false
+            'comments': false
         },
-        "test": {
-            "presets": [
+        'test': {
+            'presets': [
                 [
-                    "env", {"targets": {"node": "current"}}
+                    '@babel/env',
+                    {'targets': {'node': 'current'}}
                 ]
             ]
         }
