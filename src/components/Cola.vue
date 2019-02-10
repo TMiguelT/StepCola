@@ -18,8 +18,26 @@
             avoidOverlaps: Boolean,
             iterations: Number
         },
+        methods: {
+            resetCola() {
+                if (this.d3cola)
+                    this.d3cola.stop()
+                if (this.svg)
+                    this.svg.selectAll('*').remove()
+            }
+        },
+        beforeDestroy() {
+            this.resetCola()
+        },
+        data() {
+            return {
+                svg: null,
+                d3cola: null
+            }
+        },
         watch: {
             nodes() {
+                this.resetCola()
                 console.log("Updated!")
                 const width = 960, height = 500
                 const multiplier = 0.5
@@ -29,7 +47,13 @@
                 // graph.nodes.forEach(function (v) { v.height = v.width = 2 * nodeRadius; });
                 const color = d3.scaleOrdinal(d3.schemeCategory20)
 
-                const d3cola = cola.d3adaptor(d3)
+                this.svg = d3.select(this.$refs.svg)
+                    .attr("width", width)
+                    .attr("height", height)
+                // .selectAll("*")
+                // .remove();
+
+                this.d3cola = cola.d3adaptor(d3)
                     .avoidOverlaps(true)
                     .nodes(this.nodes)
                     .links(this.links)
@@ -41,18 +65,35 @@
                     .size([width, height])
                     .start(10, 20, 20)
 
-                const svg = d3.select(this.$refs.svg)
+                d3.select("body")
+                    .on("keypress", () => {
+                        if (d3.event.keyCode === 127) {
+                            const s = d3.select(selection)
+                            this.$emit("remove-node", s.data()[0].name)
+                        }
+                    })
+
+                let selection
+
+                const zoomRect = this.svg.append("rect")
                     .attr("width", width)
                     .attr("height", height)
-
-                const group = svg.append("g")
+                    .style("fill", "none")
+                    .style("pointer-events", "all")
                     .call(d3.zoom().on("zoom", function () {
                         console.log("zoom")
                         group.attr("transform", d3.event.transform)
                     }))
 
+
+                const group = this.svg.append("g")
+                    // .call(d3.zoom().on("zoom", function () {
+                    //     console.log("zoom")
+                    //     group.attr("transform", d3.event.transform)
+                    // }))
+
                 // define arrow markers for graph links
-                svg.append("svg:defs").append("svg:marker")
+                this.svg.append("svg:defs").append("svg:marker")
                     .attr("id", "end-arrow")
                     .attr("viewBox", "0 -5 10 10")
                     .attr("refX", 6)
@@ -77,7 +118,18 @@
                     .style("stroke", function (d) {
                         return color(d.group)
                     })
-                    .call(d3cola.drag)
+                    .call(this.d3cola.drag)
+                    .on("click", function (d) {
+                        // Unselect the previous node
+                        if (selection)
+                            d3.select(selection).classed("selected", false)
+
+                        // Select the new node
+                        d3.select(this).classed("selected", true)
+
+                        // Update the selection
+                        selection = this
+                    })
 
                 const label = group.selectAll(".label")
                     .data(this.nodes)
@@ -87,7 +139,7 @@
                     .text(function (d) {
                         return d.name
                     })
-                    .call(d3cola.drag)
+                    .call(this.d3cola.drag)
                     .each(function (d) {
                         const b = this.getBBox()
                         const extra = 2 * margin + 2 * pad
@@ -110,8 +162,7 @@
                     })
                 }
 
-
-                d3cola.on("tick", function () {
+                this.d3cola.on("tick", function () {
                     node.each(function (d) {
                         d.innerBounds = d.bounds.inflate(-margin)
                     }).attr("x", function (d) {
@@ -135,7 +186,8 @@
                     }).attr("y", function (d) {
                         return d.y + (margin + pad) / 2
                     })
-                }).on("end", routeEdges)
+                })
+                // .on("end", routeEdges)
 
             }
         }
@@ -168,6 +220,10 @@
         fill: rgba(0, 0, 0, 0);
         rx: 5px;
         ry: 5px;
+    }
+
+    .node.selected {
+        stroke: red;
     }
 
     .link {

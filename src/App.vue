@@ -1,13 +1,14 @@
 <template>
     <div id="app">
-        <Cola v-bind:nodes="graph.nodes" v-bind:links="graph.links"/>
+        <Cola v-on:remove-node="removeNode" v-bind:nodes="graph.nodes" v-bind:links="graph.links"/>
         <sui-input v-on:change="fileUpdate" accept=".json" type="file" placeholder="Search..."/>
     </div>
 </template>
 
 <script>
     import Cola from './components/Cola.vue'
-    import stepToD3 from './StepToD3'
+    import stepToD3 from './step/StepToD3'
+    import Vue from 'vue'
 
 
     export default {
@@ -25,6 +26,10 @@
                     this.stepJson = JSON.parse(text)
                 }
                 reader.readAsText(e.target.files[0])
+            },
+
+            removeNode(name){
+                Vue.delete(this.stepJson.States, name)
             }
         },
         computed: {

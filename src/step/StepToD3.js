@@ -1,18 +1,6 @@
-import _ from 'lodash'
+import _ from "lodash"
 
-function findNext(obj, list = []){
-    
-    for (let [key, value] of _.entries(obj)){
-        if(key === 'Next')
-            list.push(value)
-        else if (value instanceof Object)
-            findNext(value, list)
-    }
-    
-    return list
-}
-
-export default function stepToD3(step_json){
+export default function stepToD3(step_json) {
     const nodes = []
     const links = []
 
@@ -28,12 +16,15 @@ export default function stepToD3(step_json){
     for (let name of Object.keys(step_json.States)) {
         const node = step_json.States[name]
 
-        for (let next of findNext(node))
-            links.push({
+        for (let next of findNext(node)) {
+            let link = {
                 target: _.findIndex(nodes, n => n.name === next),
                 source: _.findIndex(nodes, n => n.name === name),
                 value: 1
-            })
+            }
+            if (link.target !== -1 && link.source !== -1)
+                links.push(link)
+        }
     }
 
     return {

@@ -1,5 +1,5 @@
 import {promises as fs} from 'fs'
-import stepToD3 from '../src/StepToD3'
+import stepToD3 from '../src/step/StepToD3'
 import assert from "assert"
 
 describe("StepToD3", function () {
